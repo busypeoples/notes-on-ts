@@ -1,4 +1,4 @@
-import { useState } from "preact/hooks";
+import { useEffect, useRef, useState } from "preact/hooks";
 import MonacoEditor from "react-monaco-editor";
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
 import * as monacoEditor from "monaco-editor/esm/vs/editor/editor.api";
@@ -12,25 +12,27 @@ import Sessions from "./Sessions";
 type LessonProps = {
   id: number;
   darkMode: boolean;
-  onNextLesson: () => void;
   onBack: () => void;
 };
 
-const Lesson = ({ id, darkMode, onNextLesson, onBack }: LessonProps) => {
+const Lesson = ({ id, darkMode, onBack }: LessonProps) => {
   const [lessonCode, testCode] =
     Object.keys(lessons).length >= id ? lessons[id] : lessons[1];
   const [code, setCode] = useState(lessonCode);
   const [msgs, setMsgs] = useState<ComponentChildren[]>([]);
+  const [markers, setMarkers] = useState<monaco.editor.IMarker[] | null>();
   const [viewTests, setViewTests] = useState(false);
   const [valid, setValid] = useState(false);
 
-  const editorDidMount = (
-    editor: monacoEditor.editor.IStandaloneCodeEditor,
-    monaco: typeof monacoEditor
-  ) => {
-    editor.focus();
-    editor.onDidChangeModelDecorations(() => {
-      const markers = monaco.editor.getModelMarkers({});
+  const timeoutRef = useRef<number>();
+  useEffect(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = setTimeout(() => {
+      if (!markers) {
+        return;
+      }
       const msgs = markers
         .filter(
           (marker) => marker.severity > 1 && marker.resource.path !== "/test.ts"
@@ -52,23 +54,31 @@ const Lesson = ({ id, darkMode, onNextLesson, onBack }: LessonProps) => {
 
       setMsgs([
         ...msgs,
-        failedTests > 0 ? (
-          <div className="flex flex-row items-center text-red-500">
-            <span className="block rounded-full w-3 h-3 bg-red-500 mr-2" />
-            {failedTests} {failedTests === 0 ? "Test" : "Tests"} Failed
-          </div>
-        ) : msgs.length === 0 ? (
-          <div className="flex flex-row items-center text-green-500">
-            <span className="block rounded-full w-3 h-3 bg-green-500 mr-2" />
-            All Tests Pass
-          </div>
-        ) : (
-          <div className="flex flex-row items-center text-orange-500">
-            <span className="block rounded-full w-3 h-3 bg-orange-500 mr-2" />
-            Checking Tests
-          </div>
-        ),
+        ...(failedTests > 0
+          ? [
+              <div className="flex flex-row items-center text-red-500">
+                <span className="block rounded-full w-3 h-3 bg-red-500 mr-2" />
+                {failedTests} {failedTests === 0 ? "Test" : "Tests"} Failed
+              </div>,
+            ]
+          : []),
       ]);
+    }, 2000);
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [markers]);
+
+  const editorDidMount = (
+    editor: monacoEditor.editor.IStandaloneCodeEditor,
+    monaco: typeof monacoEditor
+  ) => {
+    editor.focus();
+    editor.onDidChangeModelDecorations(() => {
+      const markers = monaco.editor.getModelMarkers({ owner: "typescript" });
+      setMarkers(markers);
     });
   };
 
@@ -124,9 +134,14 @@ const Lesson = ({ id, darkMode, onNextLesson, onBack }: LessonProps) => {
     );
   };
 
-  const saveResult = () => {
-    if (valid) {
+  const testAndSaveResult = () => {
+    const markers = monaco.editor.getModelMarkers({});
+    const failedTests = markers.filter(
+      (marker) => marker.severity > 1 && marker.resource.path === "/test.ts"
+    ).length;
+    if (valid && failedTests === 0) {
       Sessions.writeLevel(id);
+      onBack();
     }
   };
 
@@ -211,10 +226,10 @@ const Lesson = ({ id, darkMode, onNextLesson, onBack }: LessonProps) => {
 
       {valid && (
         <div
-          onClick={saveResult}
+          onClick={testAndSaveResult}
           className="rounded cursor-pointer text-sm bg-gray-600 dark:bg-gray-500 text-gray-300 hover:bg-gray-700 p-2 mt-8"
         >
-          Save Result
+          Verify and Save Result
         </div>
       )}
     </div>

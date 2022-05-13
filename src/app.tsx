@@ -37,9 +37,6 @@ export function App() {
           <Lesson
             id={view.lessonId}
             darkMode={darkMode}
-            onNextLesson={() =>
-              setView({ type: "Lesson", lessonId: view.lessonId + 1 })
-            }
             onBack={() => setView({ type: "List" })}
           />
         ) : (

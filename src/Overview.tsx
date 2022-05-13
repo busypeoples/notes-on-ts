@@ -72,7 +72,7 @@ export const Lesson = ({
         <span
           className={classNames(
             "flex items-center justify-center absolute left-0 lg:left-1/2 top-1/2 rounded-full bg-black dark:bg-gray-900 dark:border dark:border-gray-500 text-white dark:text-gray-200 z-50 -ml-6 -mt-6 w-12 h-12",
-            { "animate-move1": isInView }
+            { "animate-move1": isInView, "dark:border-green-400  bg-green-800": finished }
           )}
         >
           {id}
