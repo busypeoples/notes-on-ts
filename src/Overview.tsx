@@ -159,6 +159,9 @@ export const LessonsList = ({
           <Lesson {...lesson} setLesson={setLesson} index={index} />
         ))}
       </div>
+      <div className="text-base">
+        More coming soon
+      </div>
       {items.length < lessons.length && (
         <div className="cursor-pointer text-base" onClick={incLevel}>
           Load More

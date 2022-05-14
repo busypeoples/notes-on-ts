@@ -27,6 +27,12 @@ const Lesson = ({ id, darkMode, onBack }: LessonProps) => {
   const timeoutRef = useRef<number>();
   useEffect(() => {
     if (timeoutRef.current) {
+      setMsgs([
+        <div className="flex flex-row items-center text-orange-400">
+          <span className="block rounded-full w-3 h-3 bg-orange-400 mr-2" />
+          Loading Tests...
+        </div>,
+      ]);
       clearTimeout(timeoutRef.current);
     }
     timeoutRef.current = setTimeout(() => {
@@ -167,7 +173,7 @@ const Lesson = ({ id, darkMode, onBack }: LessonProps) => {
       <div class="cursor-pointer mb-4 text-base" onClick={onBack}>
         Back to overview
       </div>
-      <div class="flex w-full md:w-8/12 h-1/2 items-center justify-center">
+      <div class="flex w-full h-1/2 items-center justify-center">
         {!viewTests && (
           <MonacoEditor
             language="typescript"

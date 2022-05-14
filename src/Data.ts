@@ -15,25 +15,11 @@ const lessons: Lesson[] = [
     level: 1,
   },
   {
-    title: "Lesson 1: Make Properties Optional",
+    title: "Lesson 2: Make Properties Optional",
     label: "Medium",
     description: "Implement your own MakeOptional type",
     id: 2,
     level: 2,
-  },
-  {
-    title: "Lesson 1: Make Properties Optional",
-    label: "Medium",
-    description: "Implement your own MakeOptional type",
-    id: 3,
-    level: 3,
-  },
-  {
-    title: "Lesson 1: Make Properties Optional",
-    label: "Medium",
-    description: "Implement your own MakeOptional type",
-    id: 4,
-    level: 4,
   },
 ];
 
