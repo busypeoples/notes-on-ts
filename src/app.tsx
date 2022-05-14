@@ -23,7 +23,7 @@ export function App() {
       })}
     >
       <div className={classNames("p-10 text-center text-2xl")}>
-        <div className="absolute flex items-center justify-center h-8 right-10">
+        <div className="md:absolute flex items-center justify-center h-8 md:right-10">
           <span
             className="cursor-pointer text-sm"
             onClick={() => setDarkMode((mode) => !mode)}
